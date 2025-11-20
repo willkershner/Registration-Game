@@ -8,6 +8,10 @@ Follow the instructions on the official wxWidgets website to download and instal
 g++ main.cpp `wx-config --libs --cxxflags` -o mainApp
 `
 
+I adjusted all images to 20 inches wide and locked aspect ratio.
+
+
+
 Things to still do:
 - Add a a countdown timer before the game starts
 - Keep track of time
