@@ -1,60 +1,122 @@
 #include <wx/wx.h>
 #include <wx/image.h>
-
-using namespace std;
+#include <vector>
 
 class MyFrame : public wxFrame
 {
 public:
-    MyFrame()
-        : wxFrame(nullptr, wxID_ANY, "Background Image Example", wxDefaultPosition, wxSize(800, 500))
+    MyFrame(const wxString& bgFile)
+        : wxFrame(nullptr, wxID_ANY, "Window Matching Image Size",
+                  wxDefaultPosition, wxDefaultSize,
+                  wxDEFAULT_FRAME_STYLE & ~(wxRESIZE_BORDER | wxMAXIMIZE_BOX))
     {
-        wxPanel* panel = new wxPanel(this);
-
-        // Load the background image as wxImage
-        if (!bgImage.LoadFile("test.png")) // replace with your image path
+        // Load background image
+        if (!bgImage.LoadFile(bgFile))
         {
             wxMessageBox("Failed to load background image!", "Error", wxOK | wxICON_ERROR);
+            return;
         }
 
-        // Controls
-        exitButton = new wxButton(panel, wxID_ANY, "Exit", wxDefaultPosition, wxSize(70, 30));
-        outputText = new wxStaticText(panel, wxID_ANY, "Hello!", wxDefaultPosition, wxSize(350, -1));
+        // Set window size exactly to the image size
+        winWidth = bgImage.GetWidth();
+        winHeight = bgImage.GetHeight();
+        SetSize(winWidth, winHeight);
+        SetSizeHints(wxSize(winWidth, winHeight), wxSize(winWidth, winHeight));
 
-        wxBoxSizer* vbox = new wxBoxSizer(wxVERTICAL);
-        vbox->Add(outputText, 0, wxALL, 10);
-        vbox->Add(exitButton, 0, wxALL, 10);
-        panel->SetSizer(vbox);
+        // Create panel
+        panel = new wxPanel(this);
+        panel->SetBackgroundStyle(wxBG_STYLE_PAINT);
+        panel->SetDoubleBuffered(true);
 
-        exitButton->Bind(wxEVT_BUTTON, &MyFrame::OnExit, this);
+        // Transparent bitmap for buttons
+        wxBitmap emptyBmp(150, 50);
+        {
+            wxMemoryDC dc(emptyBmp);
+            dc.SetBackground(*wxTRANSPARENT_BRUSH);
+            dc.Clear();
+            dc.SelectObject(wxNullBitmap);
+        }
 
-        // Bind paint event on the panel
+        // Add Start button (centered)
+        MyButton* startButton = new MyButton(panel, emptyBmp, wxPoint(winWidth/2 - 75, winHeight/2 - 25), "Start");
+        buttons.push_back(startButton);
+        startButton->Bind(wxEVT_BUTTON, &MyFrame::OnStartClicked, this);
+
+        // Bind paint event
         panel->Bind(wxEVT_PAINT, &MyFrame::OnPaint, this);
     }
 
 private:
+    wxPanel* panel;
     wxImage bgImage;
-    wxButton* exitButton;
-    wxStaticText* outputText;
+    std::vector<wxButton*> buttons;
+    int winWidth, winHeight;
 
-    void OnExit(wxCommandEvent& WXUNUSED(event))
+    class MyButton : public wxBitmapButton
     {
-        Close(true);
+    public:
+        MyButton(wxPanel* parent, const wxBitmap& bmp, const wxPoint& pos, const wxString& label)
+            : wxBitmapButton(parent, wxID_ANY, bmp, pos, bmp.GetSize(), wxBORDER_NONE)
+        {
+            SetToolTip(label);
+        }
+    };
+
+    void OnStartClicked(wxCommandEvent&)
+    {
+        // Load new background image
+        if (!bgImage.LoadFile("plan_select.png"))
+        {
+            wxMessageBox("Failed to load plan_select.png!", "Error", wxOK | wxICON_ERROR);
+            return;
+        }
+
+        // Set window size exactly to the new image
+        winWidth = bgImage.GetWidth();
+        winHeight = bgImage.GetHeight();
+        SetSize(winWidth, winHeight);
+        SetSizeHints(wxSize(winWidth, winHeight), wxSize(winWidth, winHeight));
+
+        // Remove old buttons
+        for (auto btn : buttons) btn->Destroy();
+        buttons.clear();
+
+        // Transparent bitmap for buttons
+        wxBitmap emptyBmp(150, 50);
+        {
+            wxMemoryDC dc(emptyBmp);
+            dc.SetBackground(*wxTRANSPARENT_BRUSH);
+            dc.Clear();
+            dc.SelectObject(wxNullBitmap);
+        }
+
+        // Add new buttons relative to window size
+        MyButton* option1 = new MyButton(panel, emptyBmp, wxPoint(winWidth/4 - 75, winHeight/2 - 25), "Option 1");
+        MyButton* option2 = new MyButton(panel, emptyBmp, wxPoint(3*winWidth/4 - 75, winHeight/2 - 25), "Option 2");
+        buttons.push_back(option1);
+        buttons.push_back(option2);
+
+        option1->Bind(wxEVT_BUTTON, &MyFrame::OnOptionClicked, this);
+        option2->Bind(wxEVT_BUTTON, &MyFrame::OnOptionClicked, this);
+
+        panel->Layout();
+        panel->Refresh();
     }
 
-    void OnPaint(wxPaintEvent& WXUNUSED(event))
+    void OnOptionClicked(wxCommandEvent&)
     {
-        wxPaintDC dc(this->GetChildren()[0]); // paint on panel
+        wxMessageBox("Option clicked!", "Info", wxOK | wxICON_INFORMATION);
+    }
+
+    void OnPaint(wxPaintEvent&)
+    {
+        wxPaintDC dc(panel);
+        dc.Clear();
 
         if (bgImage.IsOk())
         {
-            wxSize size = this->GetClientSize();
-
-            // Scale image to panel size
-            wxBitmap bmp(bgImage.Scale(size.GetWidth(), size.GetHeight(), wxIMAGE_QUALITY_HIGH));
-
-            // Draw scaled bitmap
-            dc.DrawBitmap(bmp, 0, 0, false);
+            // Draw image at original size (no scaling)
+            dc.DrawBitmap(wxBitmap(bgImage), 0, 0, false);
         }
     }
 };
@@ -64,9 +126,10 @@ class MyApp : public wxApp
 public:
     bool OnInit() override
     {
-        wxImage::AddHandler(new wxJPEGHandler);
         wxImage::AddHandler(new wxPNGHandler);
-        MyFrame* frame = new MyFrame();
+        wxImage::AddHandler(new wxJPEGHandler);
+
+        MyFrame* frame = new MyFrame("page-start.png");
         frame->Show();
         return true;
     }
