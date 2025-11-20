@@ -7,3 +7,10 @@ Follow the instructions on the official wxWidgets website to download and instal
 `
 g++ main.cpp `wx-config --libs --cxxflags` -o mainApp
 `
+
+Things to still do:
+- Add a a countdown timer before the game starts
+- Keep track of time
+- Implement a leaderboard system
+- Add buttons at the correct position
+- Delete button and load next background image when button is clicked and load new buttons
