@@ -1,0 +1,6 @@
+Pixel coordinates:
+
+page_start — (42, 322) -> (149, 343)
+plan_select — (1718, 328) -> (1799, 374)
+search_criteria_page — (287, 205) -> (341, 226)
+submit — (1789, 951) -> (1893, 972)
