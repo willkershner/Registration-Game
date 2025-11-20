@@ -18,3 +18,10 @@ Things to still do:
 - Implement a leaderboard system
 - Add buttons at the correct position
 - Delete button and load next background image when button is clicked and load new buttons
+
+
+For Friday Presentation:
+- What the program does
+- User feedback
+- Live/video demo
+- Next steps
