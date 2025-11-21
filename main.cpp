@@ -1,6 +1,7 @@
 #include <wx/wx.h>
 #include <wx/image.h>
 #include <vector>
+#include <fstream>
 
 #if defined(_WIN32)
 #include <windows.h>
@@ -28,6 +29,8 @@ private:
     wxPanel* panel = nullptr;
     wxImage bgImage;
 
+    ofstream leaderboard;
+
     // Landing page controls
     wxStaticText* nameLabel = nullptr;
     wxTextCtrl* nameInput = nullptr;
@@ -51,7 +54,7 @@ private:
 
         // Label for name
         nameLabel = new wxStaticText(panel, wxID_ANY, "Enter your name:", wxPoint(300, 200), wxSize(200, 30));
-        nameLabel->SetFont(wxFont(12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD));
+        nameLab el->SetFont(wxFont(12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD));
 
         // Name input
         nameInput = new wxTextCtrl(panel, wxID_ANY, "", wxPoint(300, 230), wxSize(200, 30));
@@ -82,7 +85,7 @@ private:
 
     void OnStartClicked(wxCommandEvent&)
     {
-        wxString playerName = nameInput->GetValue();
+        static wxString playerName = nameInput->GetValue();
         int selectedLevel = levelChoice->GetSelection();
 
         if (playerName.IsEmpty())
@@ -124,6 +127,9 @@ private:
     else
     {
         wxMessageBox("Level 1 complete!", "Info", wxOK | wxICON_INFORMATION);
+
+        updateLeaderboard(playerName);
+
         return;
     }
 
@@ -210,6 +216,14 @@ private:
 
         if (bgImage.IsOk())
             dc.DrawBitmap(wxBitmap(bgImage), 0, 0, false);
+    }
+
+    /******** RECORD DATA ********/
+    void updateLeaderboard(wxString playerName)
+    {
+        leaderboard.open("leaderboard.txt");
+        leaderboard << playerName << endl;
+        leaderboard.close();
     }
 };
 
