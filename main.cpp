@@ -58,7 +58,8 @@ private:
     std::vector<wxButton*> landingButtons;
 
     // Level controls/state
-    int level1Screen = 0;
+    int levelScreen = 0;
+    int selectedLevelGlobal = 0;
     std::vector<wxButton*> levelButtons;
 
     // Timer / countdown
@@ -230,7 +231,7 @@ private:
     void OnStartClicked(wxCommandEvent&)
     {
         playerNameGlobal = nameInput->GetValue();
-        int selectedLevel = levelChoice->GetSelection();
+        int selectedLevel = levelChoice->GetSelection();  // 0, 1, or 2
 
         if (playerNameGlobal.IsEmpty())
         {
@@ -238,14 +239,16 @@ private:
             return;
         }
 
-        // Destroy landing page UI elements (we'll keep panel)
+        // Save selected level
+        selectedLevelGlobal = selectedLevel;
+
+        // Destroy landing UI
         if (nameLabel) { nameLabel->Destroy(); nameLabel = nullptr; }
         if (nameInput) { nameInput->Destroy(); nameInput = nullptr; }
         if (levelChoice) { levelChoice->Destroy(); levelChoice = nullptr; }
         for (auto b : landingButtons) if (b) b->Destroy();
         landingButtons.clear();
 
-        // Start countdown that blocks interaction until zero
         StartCountdown();
     }
 
@@ -278,23 +281,32 @@ private:
     void OnCountdownTick(wxTimerEvent&)
     {
         countdownValue--;
-        if (countdownValue > 0) {
+
+        if (countdownValue > 0)
+        {
             if (countdownLabel && countdownLabel->IsShown())
                 countdownLabel->SetLabel(wxString::Format("Starting in %d...", countdownValue));
-        } else {
-            // End countdown
+        }
+        else
+        {
             if (m_countdownTimer.IsRunning()) m_countdownTimer.Stop();
             if (countdownLabel) { countdownLabel->Destroy(); countdownLabel = nullptr; }
 
-            panel->Enable(); // allow clicks
-            timingStarted = false; // not started yet - will start on first click
+            panel->Enable();
+            timingStarted = false;
             startTimeMs = 0;
             endTimeMs = 0;
 
-            // Load first level screen
-            LoadLevel1Screen(0);
+            // Load selected level
+            switch (selectedLevelGlobal)
+            {
+                case 0: LoadLevel1Screen(0); break;
+                case 1: LoadLevel2Screen(0); break;
+                case 2: LoadLevel3Screen(0); break;
+            }
         }
     }
+
 
     /************************ Level 1 multi-screen ************************/
     void ClearLevelButtons()
@@ -305,7 +317,7 @@ private:
 
     void LoadLevel1Screen(int screen)
     {
-        level1Screen = screen;
+        levelScreen = screen;
 
         // Clear previously created level buttons
         ClearLevelButtons();
@@ -313,7 +325,8 @@ private:
         // Decide background image (if you provide images, they will be drawn)
         wxString imageFile;
         if (screen == 0) imageFile = "page_start.png";
-        else if (screen == 1) imageFile = "plan_select.png";
+        else if (screen == 1) imageFile = "search_criteria_page.png";
+        // Change this line once the image is fixed
         else if (screen == 2) imageFile = "plan_select.png";
         else {
             wxMessageBox("Level 1 complete!", "Info", wxOK | wxICON_INFORMATION);
@@ -345,7 +358,7 @@ private:
                     timingStarted = true;
                     startTimeMs = wxGetLocalTimeMillis();
                 }
-                LoadLevel1Screen(level1Screen + 1);
+                LoadLevel1Screen(levelScreen + 1);
             });
             levelButtons.push_back(nextBtn);
         }
@@ -362,10 +375,199 @@ private:
                     timingStarted = true;
                     startTimeMs = wxGetLocalTimeMillis();
                 }
-                LoadLevel1Screen(level1Screen + 1);
+                LoadLevel1Screen(levelScreen + 1);
             });
             levelButtons.push_back(nextBtn1);
         }
+        
+        else if (screen == 2)
+        {
+            // Final button - stop timer and show results
+            // Place near bottom-right but inside window
+            int px = std::max(20, winWidth - 200);
+            int py = std::max(20, winHeight - 100);
+            wxButton* finalBtn = new wxButton(panel, wxID_ANY, "Submit", wxPoint(px, py), wxSize(150,50), wxNO_BORDER);
+            finalBtn->SetBackgroundColour(wxColour(0, 200, 0));
+            finalBtn->SetToolTip("Finish Level 1");
+            finalBtn->Bind(wxEVT_BUTTON, [this](wxCommandEvent&)
+            {
+                // If timing never started (user navigated without clicking a level button), start time at earliest possible
+                if (!timingStarted) {
+                    startTimeMs = wxGetLocalTimeMillis();
+                }
+                endTimeMs = wxGetLocalTimeMillis();
+
+                long elapsedMs = (endTimeMs - startTimeMs).ToLong();
+                if (elapsedMs < 0) elapsedMs = 0; // safety
+
+                ShowResultsScreen(elapsedMs);
+            });
+            levelButtons.push_back(finalBtn);
+        }
+
+        panel->Refresh();
+    }
+
+    //************************ Level 2 screen ************************/
+    void LoadLevel2Screen(int screen)
+    {
+        levelScreen = screen;
+
+        // Clear previously created level buttons
+        ClearLevelButtons();
+
+        // Decide background image (if you provide images, they will be drawn)
+        wxString imageFile;
+        if (screen == 0) imageFile = "page_start.png";
+        else if (screen == 1) imageFile = "plan_select.png";
+        // Change this line once the image is fixed
+        else if (screen == 2) imageFile = "plan_select.png";
+        else {
+            wxMessageBox("Level 1 complete!", "Info", wxOK | wxICON_INFORMATION);
+            return;
+        }
+
+        // Try load background (non-fatal)
+        if (!bgImage.LoadFile(imageFile)) {
+            // If failed to load, just keep plain background
+            // wxMessageBox("Failed to load " + imageFile, "Error", wxOK | wxICON_ERROR);
+        } else {
+            winWidth = bgImage.GetWidth();
+            winHeight = bgImage.GetHeight();
+            SetClientSize(winWidth, winHeight);
+        }
+
+        // Example button bitmap size (we'll simply use standard buttons)
+        // Screen-specific buttons:
+        if (screen == 0)
+        {
+            // First button for screen 0
+            wxButton* nextBtn = new wxButton(panel, wxID_ANY, "Submit", wxPoint(30,240), wxSize(150,50), wxNO_BORDER);
+            nextBtn->SetBackgroundColour(wxColour(200,200,200));
+            nextBtn->SetToolTip("Next");
+            // Bind with timing logic: first click starts the timer (if not started)
+            nextBtn->Bind(wxEVT_BUTTON, [this](wxCommandEvent&)
+            {
+                if (!timingStarted) {
+                    timingStarted = true;
+                    startTimeMs = wxGetLocalTimeMillis();
+                }
+                LoadLevel2Screen(levelScreen + 1);
+            });
+            levelButtons.push_back(nextBtn);
+        }
+        else if (screen == 1)
+        {
+            // Button for screen 1
+            // Position adjusted to be inside the window
+            wxButton* nextBtn1 = new wxButton(panel, wxID_ANY, "Add Plan", wxPoint(1200,240), wxSize(150,50), wxNO_BORDER);
+            nextBtn1->SetBackgroundColour(wxColour(200,200,200));
+            nextBtn1->SetToolTip("Next Screen 2");
+            nextBtn1->Bind(wxEVT_BUTTON, [this](wxCommandEvent&)
+            {
+                if (!timingStarted) {
+                    timingStarted = true;
+                    startTimeMs = wxGetLocalTimeMillis();
+                }
+                LoadLevel2Screen(levelScreen + 1);
+            });
+            levelButtons.push_back(nextBtn1);
+        }
+        
+        else if (screen == 2)
+        {
+            // Final button - stop timer and show results
+            // Place near bottom-right but inside window
+            int px = std::max(20, winWidth - 200);
+            int py = std::max(20, winHeight - 100);
+            wxButton* finalBtn = new wxButton(panel, wxID_ANY, "Submit", wxPoint(px, py), wxSize(150,50), wxNO_BORDER);
+            finalBtn->SetBackgroundColour(wxColour(0, 200, 0));
+            finalBtn->SetToolTip("Finish Level 1");
+            finalBtn->Bind(wxEVT_BUTTON, [this](wxCommandEvent&)
+            {
+                // If timing never started (user navigated without clicking a level button), start time at earliest possible
+                if (!timingStarted) {
+                    startTimeMs = wxGetLocalTimeMillis();
+                }
+                endTimeMs = wxGetLocalTimeMillis();
+
+                long elapsedMs = (endTimeMs - startTimeMs).ToLong();
+                if (elapsedMs < 0) elapsedMs = 0; // safety
+
+                ShowResultsScreen(elapsedMs);
+            });
+            levelButtons.push_back(finalBtn);
+        }
+
+        panel->Refresh();
+    }
+
+    //************************ Level 3 screen ************************/
+    void LoadLevel3Screen(int screen)
+    {
+        levelScreen = screen;
+
+        // Clear previously created level buttons
+        ClearLevelButtons();
+
+        // Decide background image (if you provide images, they will be drawn)
+        wxString imageFile;
+        if (screen == 0) imageFile = "page_start.png";
+        else if (screen == 1) imageFile = "plan_select.png";
+        // Change this line once the image is fixed
+        else if (screen == 2) imageFile = "submit.png";
+        else {
+            wxMessageBox("Level 1 complete!", "Info", wxOK | wxICON_INFORMATION);
+            return;
+        }
+
+        // Try load background (non-fatal)
+        if (!bgImage.LoadFile(imageFile)) {
+            // If failed to load, just keep plain background
+            // wxMessageBox("Failed to load " + imageFile, "Error", wxOK | wxICON_ERROR);
+        } else {
+            winWidth = bgImage.GetWidth();
+            winHeight = bgImage.GetHeight();
+            SetClientSize(winWidth, winHeight);
+        }
+
+        // Example button bitmap size (we'll simply use standard buttons)
+        // Screen-specific buttons:
+        if (screen == 0)
+        {
+            // First button for screen 0
+            wxButton* nextBtn = new wxButton(panel, wxID_ANY, "Submit", wxPoint(30,240), wxSize(150,50), wxNO_BORDER);
+            nextBtn->SetBackgroundColour(wxColour(200,200,200));
+            nextBtn->SetToolTip("Next");
+            // Bind with timing logic: first click starts the timer (if not started)
+            nextBtn->Bind(wxEVT_BUTTON, [this](wxCommandEvent&)
+            {
+                if (!timingStarted) {
+                    timingStarted = true;
+                    startTimeMs = wxGetLocalTimeMillis();
+                }
+                LoadLevel3Screen(levelScreen + 1);
+            });
+            levelButtons.push_back(nextBtn);
+        }
+        else if (screen == 1)
+        {
+            // Button for screen 1
+            // Position adjusted to be inside the window
+            wxButton* nextBtn1 = new wxButton(panel, wxID_ANY, "Add Plan", wxPoint(1200,240), wxSize(150,50), wxNO_BORDER);
+            nextBtn1->SetBackgroundColour(wxColour(200,200,200));
+            nextBtn1->SetToolTip("Next Screen 2");
+            nextBtn1->Bind(wxEVT_BUTTON, [this](wxCommandEvent&)
+            {
+                if (!timingStarted) {
+                    timingStarted = true;
+                    startTimeMs = wxGetLocalTimeMillis();
+                }
+                LoadLevel3Screen(levelScreen + 1);
+            });
+            levelButtons.push_back(nextBtn1);
+        }
+        
         else if (screen == 2)
         {
             // Final button - stop timer and show results
