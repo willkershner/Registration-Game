@@ -29,7 +29,7 @@ void Level3::LoadScreen(int screen)
 
     if (screen == 0)
     {
-        wxButton* nextBtn = CreateNextButton("Submit", wxPoint(30,240), wxSize(150,50));
+        wxButton* nextBtn = CreateNextButton("Submit", wxPoint(30,240), wxSize(85,25));
         nextBtn->SetToolTip("Next");
         nextBtn->Bind(wxEVT_BUTTON, [this](wxCommandEvent&) {
             if (!m_timingStarted) {
@@ -55,9 +55,9 @@ void Level3::LoadScreen(int screen)
     {
         int winWidth = std::max(20, m_bgImage.IsOk() ? m_bgImage.GetWidth() : 800);
         int winHeight = std::max(20, m_bgImage.IsOk() ? m_bgImage.GetHeight() : 600);
-        int px = std::max(20, winWidth - 200);
-        int py = std::max(20, winHeight - 100);
-        wxButton* finalBtn = CreateFinalButton("Submit", wxPoint(px, py), wxSize(150,50));
+        int px = std::max(20, winWidth - 135);
+        int py = std::max(20, winHeight - 35);
+        wxButton* finalBtn = CreateFinalButton("Submit", wxPoint(px, py), wxSize(80,25));
         finalBtn->SetToolTip("Finish Level 3");
         finalBtn->Bind(wxEVT_BUTTON, [this](wxCommandEvent&){
             if (!m_timingStarted) {
