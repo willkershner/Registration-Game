@@ -62,7 +62,7 @@ void Level3::LoadScreen(int screen)
         finalBtn->Bind(wxEVT_BUTTON, [this](wxCommandEvent&){
             if (!m_timingStarted) {
                 m_startTimeMs = wxGetLocalTimeMillis();
-            }
+            } 
             wxLongLong endTime = wxGetLocalTimeMillis();
             long elapsedMs = (endTime - m_startTimeMs).ToLong();
             if (elapsedMs < 0) elapsedMs = 0;
