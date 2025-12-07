@@ -34,7 +34,7 @@ LandingPage::LandingPage(wxWindow* parent)
     wxButton* helpButton = new wxButton(this, wxID_ANY, "Help", wxPoint(300, 380), wxSize(200, 40));
     helpButton->Bind(wxEVT_BUTTON, [](wxCommandEvent&)
     {
-        wxMessageBox("This is the help message.", "Help", wxOK | wxICON_INFORMATION);
+        wxMessageBox("This is a simulation of class registration. Each level adds another condition that can affect the process. To play the game follow the steps below:\n1. Enter your name.\n2. Select a level.\n3. Click 'Start Game' to begin.\n4. Click the buttons until you click submit.\n5. Compare your time versus your peers.", "Help", wxOK | wxICON_INFORMATION);
     });
     m_buttons.push_back(helpButton);
 

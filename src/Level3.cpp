@@ -145,9 +145,7 @@ void Level3::LoadScreen(int screen)
     // ---------------- Screen 0 ----------------
     if (screen == 0)
     {
-        wxButton* nextBtn = CreateNextButton(
-            "Submit", wxPoint(30,240), wxSize(85,25)
-        );
+        wxButton* nextBtn = CreateNextButton("Continue", wxPoint(30,240), wxSize(90,25));
 
         nextBtn->Bind(wxEVT_BUTTON, [this](wxCommandEvent&)
         {
@@ -165,8 +163,8 @@ void Level3::LoadScreen(int screen)
     {
         wxButton* addPlan = CreateNextButton(
             "Add Plan",
-            wxPoint(1200,240),
-            wxSize(150,50)
+            wxPoint(1290,245), 
+            wxSize(70,40)
         );
 
         addPlan->Bind(wxEVT_BUTTON, [this, addPlan](wxCommandEvent&)

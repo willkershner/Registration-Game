@@ -39,7 +39,7 @@ void Level2::LoadScreen(int screen)
     // Add buttons for each screen
     if (screen == 0)
     {
-        wxButton* nextBtn = CreateNextButton("Submit", wxPoint(30,240), wxSize(85,25));
+        wxButton* nextBtn = CreateNextButton("Continue", wxPoint(30,240), wxSize(90,25));
         nextBtn->SetToolTip("Next");
         nextBtn->Bind(wxEVT_BUTTON, [this](wxCommandEvent&) {
             if (!m_timingStarted) {
@@ -52,7 +52,7 @@ void Level2::LoadScreen(int screen)
     // 1st Button for add button
     else if (screen == 1)
     {
-        wxButton* nextBtn1 = CreateNextButton("Add Plan", wxPoint(1120,330), wxSize(55,20));
+        wxButton* nextBtn1 = CreateNextButton("Add Class", wxPoint(1120,330), wxSize(55,20));
         nextBtn1->SetToolTip("Next Screen 2");
         nextBtn1->Bind(wxEVT_BUTTON, [this](wxCommandEvent&){
             if (!m_timingStarted) {
@@ -65,7 +65,7 @@ void Level2::LoadScreen(int screen)
     // 2nd Button for add button
     else if (screen == 2)
     {
-        wxButton* nextBtn1 = CreateNextButton("Add Plan", wxPoint(1120,370), wxSize(55,20));
+        wxButton* nextBtn1 = CreateNextButton("Add Class", wxPoint(1120,370), wxSize(55,20));
         nextBtn1->SetToolTip("Next Screen 2");
         nextBtn1->Bind(wxEVT_BUTTON, [this](wxCommandEvent&){
             if (!m_timingStarted) {
@@ -78,7 +78,7 @@ void Level2::LoadScreen(int screen)
     // 3rd Button for add button
     else if (screen == 3)
     {
-        wxButton* nextBtn1 = CreateNextButton("Add Plan", wxPoint(1120,410), wxSize(55,20));
+        wxButton* nextBtn1 = CreateNextButton("Add Class", wxPoint(1120,410), wxSize(55,20));
         nextBtn1->SetToolTip("Next Screen 2");
         nextBtn1->Bind(wxEVT_BUTTON, [this](wxCommandEvent&){
             if (!m_timingStarted) {
