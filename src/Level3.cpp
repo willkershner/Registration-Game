@@ -11,7 +11,7 @@ void Level3::LoadScreen(int screen)
 {
     m_levelScreen = screen;
     ClearButtons();
-
+    
     wxString imageFile;
     if (screen == 0) imageFile = "page_start.png";
     else if (screen == 1) imageFile = "plan_select.png";
