@@ -14,9 +14,28 @@ public:
     MyFrame();
     ~MyFrame();
 
+    /**
+     * Shows the landing page
+     */
     void ShowLanding();
+
+    /**
+     * Shows the countdown overlay
+     */
     void ShowCountdown();
+
+    /**
+     * Shows the difficulty level requested by the player
+     * 
+     * @param levelIndex the difficulty level, as read by the landing page
+     */
     void ShowLevel(int levelIndex);
+
+    /**
+     * Shows the results screen that is outputted to the json leaderboard
+     * 
+     * @param elapsedMs the amount of time, in milliseconds, that it took the player to complete the game
+     */
     void ShowResults(long elapsedMs);
 
 private:

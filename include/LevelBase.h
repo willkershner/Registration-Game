@@ -10,6 +10,11 @@ public:
     // Called by MyFrame: when level completes, call this with elapsed ms
     std::function<void(long)> onFinished;
 
+    /**
+     * Initializes the LevelBase framework for each of the levels that inherit from it
+     * 
+     * @param parent the parent window to which all of the levels are offshoots from
+     */
     LevelBase(wxWindow* parent);
     virtual ~LevelBase();
 
@@ -34,5 +39,11 @@ protected:
     wxButton* CreateFinalButton(const wxString& label, const wxPoint& pos, const wxSize& size);
 
     void ClearButtons();
+
+    /**
+     * Function for drawing a new background. (May have been made irrelevant)
+     * 
+     * @param wxPaintEvent a reference of the paint event, which is a wxEvent-derived class instantiated when the window must be repainted
+     */
     void DrawBackground(wxPaintEvent&);
 };

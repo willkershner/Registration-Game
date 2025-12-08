@@ -10,7 +10,7 @@ public:
     /**
      * Initializes the countdown structure, including the grey rectangle that covers the screen
      * 
-     * @param parent a pointer to the window in which the countdown intervenes.
+     * @param parent a pointer to parent window, since Countdown is one screen in the greater app's frame.
      */
     Countdown(wxWindow* parent);
 

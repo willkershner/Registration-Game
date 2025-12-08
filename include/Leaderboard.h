@@ -11,6 +11,12 @@ struct LeaderboardEntry {
 class Leaderboard
 {
 public:
+    /**
+     * A clean-up function for controlling the outputted json string
+     * 
+     * @param s inputted string for iteration
+     * @return the necessary escape character/hex code for formatting the json string correctly
+     */
     static wxString escapeJsonString(const wxString& s);
 
     // Save a result to the JSON file
