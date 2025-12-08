@@ -66,7 +66,12 @@ make clean_after
 
 Follow the instructions on the official wxWidgets website to download and install wxWidgets for your operating system: [wxWidgets Download](https://www.wxwidgets.org/downloads/)
 
+## A sample submit page
 
+> [Game Submit](assets/Level1/submit.png)
+
+### Level Loading page
+> [Game Load](assets/Level3/loading.png)
 
 ### CITE
 1. Chat for debugging loadfile for  menthods and linker errors
